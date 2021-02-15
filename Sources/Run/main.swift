@@ -12,7 +12,7 @@ struct EchoResponder: HTTPServerResponder {
         let request = Request(httpRequest: req)
         let name = request.getQueryParams()["name"] ?? "Guest"
         let res = HTTPResponse(body: "Hello, \(name)!")
-        
+    
         return worker.eventLoop.newSucceededFuture(result: res)
     }
 }

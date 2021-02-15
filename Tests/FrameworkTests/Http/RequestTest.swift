@@ -17,4 +17,20 @@ class RequestTest: XCTestCase {
         XCTAssertEqual(data, request.getQueryParams())
     }
     
+    func testParsedBodyJsonEncoded() {
+        let httpReq = HTTPRequest(method: .POST, url: "/", headers: ["Content-Type": "application/json"], body: HTTPBody(string: "{\"name\":\"James\"}"))
+        let data = ["name":"James"]
+        let request = Request(httpRequest: httpReq)
+        XCTAssertEqual([:], request.getQueryParams())
+        XCTAssertEqual(data, request.getParsedBody())
+    }
+    
+    func testParsedBodyFormEncoded() {
+        let httpReq = HTTPRequest(method: .POST, url: "/", headers: ["Content-Type": "application/x-www-form-urlencoded"], body: HTTPBody(string: "name=James"))
+        let data = ["name":"James"]
+        let request = Request(httpRequest: httpReq)
+        XCTAssertEqual([:], request.getQueryParams())
+        XCTAssertEqual(data, request.getParsedBody())
+    }
+    
 }
