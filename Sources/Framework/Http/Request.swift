@@ -1,24 +1,36 @@
 import Foundation
 import HTTP
 
-public struct Request {
+extension HTTPRequest {
     
-    private var queryParams = [String:String]()
-    private var bodyParams = [String:String]()
-    private let httpRequest: HTTPRequest
+    private var queryParams : [String:String]? { return parseQueryParams() }
+    private var bodyParams : [String:String]? { return parseBodyParams() }
+
+    public func getQueryParams() -> [String:String]? { return queryParams }
+    public func getParsedBody() -> [String:String]? { return bodyParams }
     
-    public init(httpRequest: HTTPRequest) {
-        self.httpRequest = httpRequest
-        self.queryParams = parseQueryParams()
-        self.bodyParams = parseBodyParams()
+    private func parseQueryParams() -> [String:String]? {
+        guard let queryString = url.query else { return nil }
+        return getDictionaryFromQuerySrtring(string: queryString)
     }
     
-    public func getQueryParams() -> [String:String] { return queryParams }
-    public func getParsedBody() -> [String:String] { return bodyParams }
-    
-    private mutating func parseQueryParams() -> [String:String] {
-        guard let queryString = self.httpRequest.url.query else { return queryParams }
-        return getDictionaryFromQuerySrtring(string: queryString)
+    private func parseBodyParams() -> [String:String]? {
+        guard let contentType = contentType else { return nil }
+        var dictionaryResult: [String:String] = [:]
+        switch contentType {
+        case .json:
+            if let data = body.data {
+                if let res = try? JSONSerialization.jsonObject(with: data, options: []) as? [String:String] {
+                    dictionaryResult = res
+                }
+            }
+        case .urlEncodedForm:
+            dictionaryResult = getDictionaryFromQuerySrtring(string: body.description)
+        default:
+            print("Unsupported type")
+            return nil
+        }
+        return dictionaryResult
     }
     
     private func getDictionaryFromQuerySrtring(string: String) -> [String:String] {
@@ -31,24 +43,4 @@ public struct Request {
         }
         return dictionaryResult
     }
-
-    private mutating func parseBodyParams() -> [String:String] {
-        guard let contentType = httpRequest.contentType else { return bodyParams }
-        var dictionaryResult: [String:String] = [:]
-        switch contentType {
-        case .json:
-            if let data = httpRequest.body.data {
-                if let res = try? JSONSerialization.jsonObject(with: data, options: []) as? [String:String] {
-                    dictionaryResult = res
-                }
-            }
-        case .urlEncodedForm:
-            dictionaryResult = getDictionaryFromQuerySrtring(string: httpRequest.body.description)
-        default:
-            print("Unsupported type")
-        }
-        
-        return dictionaryResult
-    }
-
 }

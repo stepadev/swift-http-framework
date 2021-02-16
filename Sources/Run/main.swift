@@ -5,14 +5,14 @@ import HTTP
 import Framework
 
 struct EchoResponder: HTTPServerResponder {
-    func respond(to req: HTTPRequest, on worker: Worker) -> Future<HTTPResponse> {
+    func respond(to request: HTTPRequest, on worker: Worker) -> Future<HTTPResponse> {
         
         print("-------Start--------")
  
-        let request = Request(httpRequest: req)
-        let name = request.getQueryParams()["name"] ?? "Guest"
-        let res = HTTPResponse(body: "Hello, \(name)!")
-    
+        let name = request.getQueryParams()?["name"] ?? "Guest"
+        var res = HTTPResponse(body: "Hello, \(name)!")
+        res.headers.add(name: "X-Developer", value: "StepA")
+        
         return worker.eventLoop.newSucceededFuture(result: res)
     }
 }

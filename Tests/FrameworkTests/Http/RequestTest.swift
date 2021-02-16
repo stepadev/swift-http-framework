@@ -3,34 +3,65 @@ import XCTest
 @testable import Framework
 
 class RequestTest: XCTestCase {
-  
+    
     func testEmpty() {
-        let httpReq = HTTPRequest()
-        let request = Request(httpRequest: httpReq)
-        XCTAssertEqual([:], request.getQueryParams())
+        let request = HTTPRequest(
+            method: .GET,
+            url: "/"
+        )
+        XCTAssertNil(request.getQueryParams())
+        XCTAssertNil(request.getParsedBody())
     }
     
     func testQueryParams() {
-        let httpReq = HTTPRequest(url: "/?name=John&age=23")
-        let data = ["name":"John", "age":"23"]
-        let request = Request(httpRequest: httpReq)
-        XCTAssertEqual(data, request.getQueryParams())
+        let request1 = HTTPRequest(
+            method: .GET,
+            url: "/?name=John&age=23"
+        )
+        let request2 = HTTPRequest(
+            method: .GET,
+            url: "/?name=&age="
+        )
+        let data1 = ["name":"John", "age":"23"]
+        let data2 = ["name":"", "age":""]
+        XCTAssertEqual(data1, request1.getQueryParams())
+        XCTAssertNil(request1.getParsedBody())
+        XCTAssertEqual(data2, request2.getQueryParams())
+        XCTAssertNil(request2.getParsedBody())
     }
     
     func testParsedBodyJsonEncoded() {
-        let httpReq = HTTPRequest(method: .POST, url: "/", headers: ["Content-Type": "application/json"], body: HTTPBody(string: "{\"name\":\"James\"}"))
+        let request = HTTPRequest(
+            method: .POST,
+            url: "/",
+            headers: ["Content-Type": "application/json"],
+            body: HTTPBody(string: "{\"name\":\"James\"}")
+        )
         let data = ["name":"James"]
-        let request = Request(httpRequest: httpReq)
-        XCTAssertEqual([:], request.getQueryParams())
+        XCTAssertNil(request.getQueryParams())
         XCTAssertEqual(data, request.getParsedBody())
     }
     
     func testParsedBodyFormEncoded() {
-        let httpReq = HTTPRequest(method: .POST, url: "/", headers: ["Content-Type": "application/x-www-form-urlencoded"], body: HTTPBody(string: "name=James"))
+        let request = HTTPRequest(
+            method: .POST,
+            url: "/",
+            headers: ["Content-Type": "application/x-www-form-urlencoded"],
+            body: HTTPBody(string: "name=James")
+        )
         let data = ["name":"James"]
-        let request = Request(httpRequest: httpReq)
-        XCTAssertEqual([:], request.getQueryParams())
+        XCTAssertNil(request.getQueryParams())
         XCTAssertEqual(data, request.getParsedBody())
+    }
+    
+    func testParsedBodyUnsupportedFormat() {
+        let request = HTTPRequest(
+            method: .POST,
+            url: "/",
+            headers: ["Content-Type": "multipart/form-data"]
+        )
+        XCTAssertNil(request.getQueryParams())
+        XCTAssertNil(request.getParsedBody())
     }
     
 }
