@@ -23,7 +23,7 @@ extension HTTPRequest {
         // parse params and create string
         var urlQuery = ""
         for param in params {
-            if param.key != "" {
+            if !param.key.isEmpty {
                 urlQuery += "\(param.key)=\(param.value)&"
             }
         }
@@ -61,7 +61,7 @@ extension HTTPRequest {
         var urlQuery = ""
         if let queryParams = getQueryParams() {
             for param in queryParams {
-                if param.key != "" {
+                if !param.key.isEmpty {
                     urlQuery += "\(param.key)=\(param.value)&"
                 }
             }
@@ -97,7 +97,7 @@ extension HTTPRequest {
         }
         
         request.method = method
-        request.url = URL(string: (queryString.isEmpty) ? "/" : "/?\(queryString)")!
+        request.url = URL(string: (queryString.isEmpty) ? "/" : "/?\(queryString.dropLast())")!
         request.version = HTTPVersion(major: request.version.major, minor: request.version.minor)
         request.headers = request.headers
         request.body = ((bodyParams) != nil) ? HTTPBody(data: bodyParams!) : HTTPBody()
