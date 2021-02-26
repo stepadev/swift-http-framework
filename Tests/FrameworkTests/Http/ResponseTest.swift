@@ -5,13 +5,8 @@ import XCTest
 class ResponseTest: XCTestCase {
     
     func testEmpty() {
-        let status = HTTPResponseStatus(
-            statusCode: 200,
-            reasonPhrase: "OK"
-        )
-        let body = "Hello Body"
+        let body = "Hello"
         let response = HTTPResponse(
-            status: status,
             body: HTTPBody(string: body)
         )
         XCTAssertEqual(body, response.getBody())
@@ -33,4 +28,12 @@ class ResponseTest: XCTestCase {
         XCTAssertEqual(404, response.getStatusCode())
         XCTAssertEqual("Not Found", response.getReasonPhrase())
     }
+    
+    func testHeaders() {
+        let response = HTTPResponse()
+            .withHeader(["X-Header-1":"value1"])
+            .withHeader(["X-Header-2":"value2"])
+        XCTAssertEqual(["content-length":"0", "X-Header-1":"value1", "X-Header-2":"value2"], response.getHeaders())
+    }
+    
 }
