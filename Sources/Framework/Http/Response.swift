@@ -28,4 +28,34 @@ extension HTTPResponse {
         }
         return headers
     }
+    
+    func withBody(_ body: HTTPBody) -> HTTPResponse {
+        var response = self
+        response.body = body
+        return response
+    }
+    
+    func withStatus(code: Int, reasonPhrase: String = "") -> HTTPResponse {
+        var response = self
+        response.status = HTTPResponseStatus(statusCode: code, reasonPhrase: reasonPhrase)
+        return response
+    }
+    
+    func hasHeader(_ header: [String:String]) -> Bool {
+        let headers = getHeaders()
+        for search in headers {
+            if search.key == header.first?.key && search.value == header.first?.value {
+                return true
+            }
+        }
+        return false
+    }
+    
+    func getHeader(_ header: [String:String]) -> [String:String] {
+        if (!self.hasHeader(header)) {
+            return [:]
+        }
+        return header
+    }
+
 }
